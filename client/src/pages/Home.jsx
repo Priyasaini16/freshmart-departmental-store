@@ -1,9 +1,16 @@
+import Hero from "../components/home/Hero";
+import Features from "../components/home/Features";
+import Categories from "../components/home/Categories";
+import FeaturedProducts from "../components/home/FeaturedProducts";
+
 function Home() {
   return (
-    <div>
-      <h1>FreshMart Departmental Store</h1>
-      <p>Welcome to FreshMart</p>
-    </div>
+    <>
+      <Hero />
+      <Features />
+      <Categories />
+      <FeaturedProducts />
+    </>
   );
 }
 
