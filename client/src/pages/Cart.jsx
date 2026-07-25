@@ -1,4 +1,23 @@
+import { useContext } from "react";
+import { CartContext } from "../context/CartContext";
 function Cart() {
+
+  const { cartItems, setCartItems } = useContext(CartContext);
+  function removeItem(indexToRemove) {
+     const updatedCart = cartItems.filter(
+      (_, index) => index !== indexToRemove
+    );
+
+    setCartItems(updatedCart);
+  }
+    const subtotal = cartItems.reduce((total, item) => {
+      return total + parseInt(item.price.replace(/[^\d]/g, ""));
+    }, 0);
+
+    const delivery = cartItems.length > 0 ? 40 : 0;
+
+     const total = subtotal + delivery;
+
   return (
     <section className="bg-gray-50 min-h-screen py-16">
       <div className="max-w-7xl mx-auto px-6">
@@ -13,93 +32,75 @@ function Cart() {
           {/* Cart Items */}
           <div className="lg:col-span-2 space-y-6">
 
-            {/* Item 1 */}
-            <div className="bg-white rounded-2xl shadow-md p-5 flex items-center gap-6">
+            {cartItems.length === 0 ? (
 
-              <img
-                src="https://images.pexels.com/photos/102104/pexels-photo-102104.jpeg"
-                alt="Apple"
-                className="w-28 h-28 rounded-xl object-cover"
-              />
+             <div className="bg-white rounded-2xl shadow-md p-10 text-center">
+              <h2 className="text-2xl font-semibold text-gray-700">
+               🛒 Your cart is empty
+              </h2>
 
-              <div className="flex-1">
+              <p className="text-gray-500 mt-3">
+                Add some fresh products to your cart.
+              </p>
+             </div>
 
-                <h2 className="text-xl font-semibold">
-                  Fresh Apples
-                </h2>
+          ) : (
 
-                <p className="text-green-600 font-bold mt-2">
-                  ₹120 / kg
-                </p>
+            cartItems.map((item, index) => (
 
-                <div className="flex items-center gap-4 mt-5">
+             <div
+              key={index}
+              className="bg-white rounded-2xl shadow-md p-5 flex items-center gap-6"
+             >
 
-                  <button className="bg-gray-200 w-9 h-9 rounded-lg">
-                    -
-                  </button>
+            <img
+              src={item.image}
+              alt={item.name}
+              className="w-28 h-28 rounded-xl object-cover"
+            />
 
-                  <span className="font-semibold">
-                    1
-                  </span>
+            <div className="flex-1">
 
-                  <button className="bg-gray-200 w-9 h-9 rounded-lg">
-                    +
-                  </button>
+              <h2 className="text-xl font-semibold">
+               {item.name}
+              </h2>
 
-                </div>
+              <p className="text-green-600 font-bold mt-2">
+               {item.price}
+              </p>
 
-              </div>
+            <div className="flex items-center gap-4 mt-5">
 
-              <button className="text-red-500 font-semibold">
-                Remove
+              <button className="bg-gray-200 w-9 h-9 rounded-lg">
+              -
               </button>
 
-            </div>
+              <span className="font-semibold">
+              1
+             </span>
 
-            {/* Item 2 */}
-            <div className="bg-white rounded-2xl shadow-md p-5 flex items-center gap-6">
-
-              <img
-                src="https://images.pexels.com/photos/248412/pexels-photo-248412.jpeg"
-                alt="Milk"
-                className="w-28 h-28 rounded-xl object-cover"
-              />
-
-              <div className="flex-1">
-
-                <h2 className="text-xl font-semibold">
-                  Fresh Milk
-                </h2>
-
-                <p className="text-green-600 font-bold mt-2">
-                  ₹65
-                </p>
-
-                <div className="flex items-center gap-4 mt-5">
-
-                  <button className="bg-gray-200 w-9 h-9 rounded-lg">
-                    -
-                  </button>
-
-                  <span className="font-semibold">
-                    2
-                  </span>
-
-                  <button className="bg-gray-200 w-9 h-9 rounded-lg">
-                    +
-                  </button>
-
-                </div>
-
-              </div>
-
-              <button className="text-red-500 font-semibold">
-                Remove
-              </button>
+            <button className="bg-gray-200 w-9 h-9 rounded-lg">
+              +
+            </button>
 
             </div>
 
           </div>
+
+           <button
+              onClick={() => removeItem(index)}
+              className="text-red-500 font-semibold hover:text-red-700"
+           >
+            Remove
+          </button>
+
+          </div>
+
+         ))
+
+        )}
+
+       </div>
 
           {/* Order Summary */}
           <div className="bg-white rounded-2xl shadow-md p-8 h-fit">
@@ -110,19 +111,19 @@ function Cart() {
 
             <div className="flex justify-between mb-4">
               <span>Subtotal</span>
-              <span>₹250</span>
+              <span>₹{subtotal}</span>
             </div>
 
             <div className="flex justify-between mb-4">
               <span>Delivery</span>
-              <span>₹40</span>
+              <span>₹{delivery}</span>
             </div>
 
             <hr className="my-5" />
 
             <div className="flex justify-between text-xl font-bold">
               <span>Total</span>
-              <span>₹290</span>
+              <span>₹{total}</span>
             </div>
 
             <button className="w-full mt-8 bg-green-600 hover:bg-green-700 text-white py-4 rounded-xl font-semibold transition">

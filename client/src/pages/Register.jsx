@@ -1,8 +1,83 @@
+import { Link } from "react-router-dom";
+
 function Register() {
   return (
-    <div>
-      <h1>Register Page</h1>
-    </div>
+    <section className="min-h-screen bg-green-50 flex items-center justify-center px-6 py-12">
+
+      <div className="max-w-6xl w-full min-h-[700px] bg-white rounded-3xl shadow-2xl overflow-hidden grid md:grid-cols-2">
+
+        {/* Left Side */}
+        <div className="bg-green-600 text-white flex flex-col justify-center items-center p-16">
+
+          <h1 className="text-5xl font-bold mb-6">
+            Join FreshMart
+          </h1>
+
+          <p className="text-center text-lg leading-8 max-w-md">
+            Create your account to shop thousands of fresh groceries,
+            enjoy exciting offers and experience fast delivery.
+          </p>
+
+        </div>
+
+        {/* Right Side */}
+        <div className="flex flex-col justify-center p-16">
+
+          <h2 className="text-4xl font-bold text-gray-900 mb-10">
+            Register
+          </h2>
+
+          <form className="space-y-5">
+
+            <input
+              type="text"
+              placeholder="Full Name"
+              className="w-full border border-gray-300 rounded-xl px-5 py-4 focus:outline-none focus:ring-2 focus:ring-green-500"
+            />
+
+            <input
+              type="email"
+              placeholder="Email Address"
+              className="w-full border border-gray-300 rounded-xl px-5 py-4 focus:outline-none focus:ring-2 focus:ring-green-500"
+            />
+
+            <input
+              type="password"
+              placeholder="Password"
+              className="w-full border border-gray-300 rounded-xl px-5 py-4 focus:outline-none focus:ring-2 focus:ring-green-500"
+            />
+
+            <input
+              type="password"
+              placeholder="Confirm Password"
+              className="w-full border border-gray-300 rounded-xl px-5 py-4 focus:outline-none focus:ring-2 focus:ring-green-500"
+            />
+
+            <button
+              className="w-full bg-green-600 hover:bg-green-700 text-white py-4 rounded-xl text-lg font-semibold transition"
+            >
+              Create Account
+            </button>
+
+          </form>
+
+          <p className="text-center mt-8">
+            Already have an account?
+
+            <Link
+              to="/login"
+              className="text-green-600 font-semibold ml-2 hover:underline"
+            >
+              Login
+            </Link>
+
+          </p>
+
+        </div>
+
+      </div>
+
+    </section>
   );
 }
 

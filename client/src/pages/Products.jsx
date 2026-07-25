@@ -1,3 +1,5 @@
+import { useContext, useState } from "react";
+import { CartContext } from "../context/CartContext";
 function Products() {
   const products = [
     {
@@ -44,6 +46,17 @@ function Products() {
     },
   ];
 
+  const [search, setSearch] = useState("");
+  const { cartItems, setCartItems } = useContext(CartContext);
+  const filteredProducts = products.filter((product) =>
+  product.name.toLowerCase().includes(search.toLowerCase())
+);
+function addToCart(product) {
+  setCartItems([...cartItems, product]);
+
+  alert(`${product.name} added to cart!`);
+}
+
   return (
     <section className="py-16 bg-gray-50 min-h-screen">
 
@@ -58,15 +71,45 @@ function Products() {
         </p>
 
         {/* Search & Filter */}
-        <div className="flex flex-col md:flex-row gap-4 mb-10">
+        <div className="flex flex-col md:flex-row items-center gap-4 mb-10">
 
           <input
             type="text"
-            placeholder="Search products..."
-            className="flex-1 border rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-green-500"
-          />
+            placeholder="Search fresh products..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="
+              flex-1
+              bg-white
+              border border-gray-300
+              rounded-xl
+              px-5
+              py-3
+              text-gray-700
+              placeholder-gray-400
+              shadow-sm
+              focus:outline-none
+              focus:ring-2
+              focus:ring-green-500
+              focus:border-green-500
+              transition
+             "
+            />
 
-          <select className="border rounded-xl px-4 py-3">
+          <select
+            className="
+              bg-white
+              border
+              border-gray-300
+              rounded-xl
+              px-5
+              py-3
+              shadow-sm
+              focus:outline-none
+              focus:ring-2
+              focus:ring-green-500
+             "
+            >
             <option>All Categories</option>
             <option>Fruits</option>
             <option>Vegetables</option>
@@ -80,7 +123,7 @@ function Products() {
         {/* Products Grid */}
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
 
-          {products.map((product) => (
+          {filteredProducts.map((product) => (
 
             <div
               key={product.id}
@@ -107,8 +150,11 @@ function Products() {
                   {product.price}
                 </p>
 
-                <button className="mt-5 w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-xl font-semibold">
-                  Add to Cart
+                <button
+                  onClick={() => addToCart(product)}
+                  className="mt-5 w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-xl font-semibold"
+                >
+                Add to Cart
                 </button>
 
               </div>

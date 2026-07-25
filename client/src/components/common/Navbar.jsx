@@ -1,4 +1,6 @@
 import { Link } from "react-router-dom";
+import { useContext } from "react";
+import { CartContext } from "../../context/CartContext";
 import {
   FiSearch,
   FiHeart,
@@ -7,8 +9,9 @@ import {
 } from "react-icons/fi";
 
 function Navbar() {
+  const { cartItems } = useContext(CartContext);
   return (
-    <nav className="bg-red-300 shadow-md">
+    <nav className="bg-white shadow-md">
       <div className="max-w-7xl mx-auto flex items-center justify-between px-6 py-4">
 
         {/* Left Section - Logo */}
@@ -69,17 +72,33 @@ function Navbar() {
            className="cursor-pointer hover:text-green-600 transition"
           />
 
+        <Link to="/products">
           <FiHeart
            size={22}
-           className="cursor-pointer hover:text-red-500 transition"
+           className="cursor-pointer hover:text-green-600 transition duration-300"
           />
+        </Link>
 
+        <div className="relative">
           <Link to="/cart">
            <FiShoppingCart
-            size={22}
+            size={24}
             className="cursor-pointer hover:text-green-600 transition"
           />
          </Link>
+
+        {cartItems.length > 0 && (
+
+          <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">
+
+           {cartItems.length}
+
+        </span>
+
+      )}
+
+    </div>
+
           <Link
             to="/login"
             className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg"
