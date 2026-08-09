@@ -1,172 +1,282 @@
-import { useContext, useState } from "react";
+import { useContext, useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "react-router-dom";
+import { Search, SlidersHorizontal } from "lucide-react";
+
 import { CartContext } from "../context/CartContext";
+import ProductCard from "../components/product/ProductCard";
+import ProductSkeleton from "../components/product/ProductSkeleton";
+import { getProducts } from "../clServices/productServices";
+
+const categories = [
+  "All",
+  "Fresh Fruits",
+  "Vegetables",
+  "Dairy & Breakfast",
+  "Bakery",
+  "Atta, Rice & Dal",
+  "Home & Cleaning",
+  "Snacks & Drinks",
+  "Personal Care",
+  "Baby Care",
+];
+
 function Products() {
-  const products = [
-    {
-      id: 1,
-      name: "Fresh Apples",
-      price: "₹120/kg",
-      category: "Fruits",
-      image: "https://images.pexels.com/photos/102104/pexels-photo-102104.jpeg",
-    },
-    {
-      id: 2,
-      name: "Fresh Milk",
-      price: "₹65",
-      category: "Dairy",
-      image: "https://images.pexels.com/photos/248412/pexels-photo-248412.jpeg",
-    },
-    {
-      id: 3,
-      name: "Brown Bread",
-      price: "₹45",
-      category: "Bakery",
-      image: "https://images.pexels.com/photos/209206/pexels-photo-209206.jpeg",
-    },
-    {
-      id: 4,
-      name: "Orange Juice",
-      price: "₹99",
-      category: "Beverages",
-      image: "https://images.pexels.com/photos/96974/pexels-photo-96974.jpeg",
-    },
-    {
-      id: 5,
-      name: "Tomatoes",
-      price: "₹40/kg",
-      category: "Vegetables",
-      image: "https://images.pexels.com/photos/533280/pexels-photo-533280.jpeg",
-    },
-    {
-      id: 6,
-      name: "Bananas",
-      price: "₹60/dozen",
-      category: "Fruits",
-      image: "https://images.pexels.com/photos/1093038/pexels-photo-1093038.jpeg",
-    },
-  ];
+  const { addToCart } = useContext(CartContext);
+  const [searchParams] = useSearchParams();
 
   const [search, setSearch] = useState("");
-  const { cartItems, setCartItems } = useContext(CartContext);
-  const filteredProducts = products.filter((product) =>
-  product.name.toLowerCase().includes(search.toLowerCase())
-);
-function addToCart(product) {
-  setCartItems([...cartItems, product]);
+  const [category, setCategory] = useState("All");
+  const [sort, setSort] = useState("featured");
+  const [loading, setLoading] = useState(true);
+  const [products, setProducts] = useState([]);
+  const [error, setError] = useState("");
 
-  alert(`${product.name} added to cart!`);
-}
+  // Get search query from URL
+  useEffect(() => {
+    const query = searchParams.get("search");
+
+    if (query) {
+      setSearch(query);
+    }
+  }, [searchParams]);
+
+  // Fetch products from MongoDB
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        setLoading(true);
+        setError("");
+
+        const data = await getProducts();
+
+        console.log("PRODUCTS FROM MONGODB:", data);
+
+        setProducts(data);
+      } catch (error) {
+       console.error("PRODUCT FETCH ERROR:", error);
+       setError(error.message);
+      } finally {
+       setLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, []);
+
+  // Filter + Search + Sort
+  const filteredProducts = useMemo(() => {
+    let data = [...products];
+
+    // CATEGORY
+    if (category !== "All") {
+      data = data.filter(
+        (product) =>
+          product.category?.trim().toLowerCase() ===
+          category.trim().toLowerCase()
+      );
+    }
+
+    // SEARCH
+    if (search.trim()) {
+      const searchText = search.trim().toLowerCase();
+
+      data = data.filter(
+        (product) =>
+          product.name?.toLowerCase().includes(searchText) ||
+          product.category?.toLowerCase().includes(searchText) ||
+          product.description?.toLowerCase().includes(searchText)
+      );
+    }
+
+    // SORT
+    switch (sort) {
+      case "rating":
+        data.sort(
+          (a, b) => (b.rating || 0) - (a.rating || 0)
+        );
+        break;
+
+      case "discount":
+        data.sort((a, b) => {
+          const discountA =
+            ((a.oldPrice || a.price) - a.price) /
+            (a.oldPrice || a.price);
+
+          const discountB =
+            ((b.oldPrice || b.price) - b.price) /
+            (b.oldPrice || b.price);
+
+          return discountB - discountA;
+        });
+        break;
+
+      case "low":
+        data.sort((a, b) => a.price - b.price);
+        break;
+
+      case "high":
+        data.sort((a, b) => b.price - a.price);
+        break;
+
+      case "name":
+        data.sort((a, b) =>
+          (a.name || "").localeCompare(b.name || "")
+        );
+        break;
+
+      default:
+        break;
+    }
+
+    return data;
+  }, [products, search, category, sort]);
 
   return (
-    <section className="py-16 bg-gray-50 min-h-screen">
+    <section className="min-h-screen bg-neutral-50 px-6 py-12">
+      <div className="mx-auto max-w-7xl">
 
-      <div className="max-w-7xl mx-auto px-6">
+        {/* Heading */}
+        <div className="mb-14 flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
+          <div className="max-w-2xl">
+            <span className="text-xs font-semibold uppercase tracking-[0.3em] text-green-600">
+              Fresh Collection
+            </span>
 
-        <h1 className="text-4xl font-bold text-center text-gray-900">
-          Our Products
-        </h1>
+            <h1 className="mt-4 text-5xl font-semibold leading-tight text-neutral-900">
+              Fresh groceries
+              <br />
+              for every kitchen
+            </h1>
 
-        <p className="text-center text-gray-500 mt-3 mb-10">
-          Explore our fresh and quality supermarket products.
-        </p>
+            <p className="mt-5 text-lg leading-8 text-neutral-500">
+              Discover hand-picked fruits, vegetables, dairy, bakery and
+              everyday essentials delivered fresh to your doorstep.
+            </p>
+          </div>
 
-        {/* Search & Filter */}
-        <div className="flex flex-col md:flex-row items-center gap-4 mb-10">
+          <div className="text-right">
+            <p className="text-5xl font-semibold text-neutral-900">
+              {filteredProducts.length}
+            </p>
 
-          <input
-            type="text"
-            placeholder="Search fresh products..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="
-              flex-1
-              bg-white
-              border border-gray-300
-              rounded-xl
-              px-5
-              py-3
-              text-gray-700
-              placeholder-gray-400
-              shadow-sm
-              focus:outline-none
-              focus:ring-2
-              focus:ring-green-500
-              focus:border-green-500
-              transition
-             "
+            <p className="text-neutral-500">
+              Products Available
+            </p>
+          </div>
+        </div>
+
+        {/* Search + Sort */}
+        <div className="mb-10 flex flex-col gap-5 lg:flex-row">
+          <div className="relative flex-1">
+            <Search className="absolute left-5 top-1/2 h-5 w-5 -translate-y-1/2 text-neutral-400" />
+
+            <input
+              type="text"
+              placeholder="Search groceries..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="h-14 w-full rounded-2xl border border-neutral-200 bg-white pl-14 pr-5 text-sm shadow-sm outline-none transition focus:border-green-600"
             />
+          </div>
 
-          <select
-            className="
-              bg-white
-              border
-              border-gray-300
-              rounded-xl
-              px-5
-              py-3
-              shadow-sm
-              focus:outline-none
-              focus:ring-2
-              focus:ring-green-500
-             "
+          <div className="relative">
+            <SlidersHorizontal className="absolute left-5 top-1/2 h-5 w-5 -translate-y-1/2 text-neutral-400" />
+
+            <select
+              value={sort}
+              onChange={(e) => setSort(e.target.value)}
+              className="h-14 cursor-pointer rounded-2xl border border-neutral-200 bg-white pl-14 pr-12 text-sm shadow-sm outline-none"
             >
-            <option>All Categories</option>
-            <option>Fruits</option>
-            <option>Vegetables</option>
-            <option>Dairy</option>
-            <option>Bakery</option>
-            <option>Beverages</option>
-          </select>
-
+              <option value="featured">Featured</option>
+              <option value="low">Price : Low → High</option>
+              <option value="high">Price : High → Low</option>
+              <option value="name">A → Z</option>
+              <option value="rating">Rating : High → Low</option>
+              <option value="discount">Highest Discount</option>
+            </select>
+          </div>
         </div>
 
-        {/* Products Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-
-          {filteredProducts.map((product) => (
-
-            <div
-              key={product.id}
-              className="bg-white rounded-2xl shadow-md hover:shadow-xl transition overflow-hidden"
+        {/* Categories */}
+        <div className="mb-8 flex flex-wrap gap-3">
+          {categories.map((cat) => (
+            <button
+              key={cat}
+              type="button"
+              onClick={() => setCategory(cat)}
+              className={`rounded-full px-6 py-3 text-sm font-medium transition ${
+                category === cat
+                  ? "bg-green-600 text-white shadow-md shadow-green-600/20"
+                  : "border border-neutral-200 bg-white text-neutral-700 hover:border-green-500"
+              }`}
             >
-
-              <img
-                src={product.image}
-                alt={product.name}
-                className="w-full h-56 object-cover"
-              />
-
-              <div className="p-5">
-
-                <span className="text-sm text-green-600 font-medium">
-                  {product.category}
-                </span>
-
-                <h3 className="text-lg font-semibold mt-2">
-                  {product.name}
-                </h3>
-
-                <p className="text-green-600 font-bold mt-2">
-                  {product.price}
-                </p>
-
-                <button
-                  onClick={() => addToCart(product)}
-                  className="mt-5 w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-xl font-semibold"
-                >
-                Add to Cart
-                </button>
-
-              </div>
-
-            </div>
-
+              {cat}
+            </button>
           ))}
-
         </div>
 
-      </div>
+        {/* Clear Filters */}
+        <div className="mb-10">
+          <button
+            type="button"
+            onClick={() => {
+              setSearch("");
+              setCategory("All");
+              setSort("featured");
+            }}
+            className="rounded-xl border border-neutral-300 px-5 py-2 text-sm hover:bg-neutral-100"
+          >
+            Clear Filters
+          </button>
+        </div>
 
+        {/* Error */}
+        {error && (
+          <div className="mb-8 rounded-2xl border border-red-200 bg-red-50 p-5 text-center text-red-600">
+            {error}
+          </div>
+        )}
+
+        {/* Products */}
+        {loading ? (
+          <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
+            {Array.from({ length: 8 }).map((_, index) => (
+              <ProductSkeleton key={index} />
+            ))}
+          </div>
+        ) : filteredProducts.length > 0 ? (
+          <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
+            {filteredProducts.map((product) => (
+              <ProductCard
+                key={product._id}
+                product={product}
+                onAddToCart={addToCart}
+              />
+            ))}
+          </div>
+        ) : (
+          <div className="rounded-3xl border border-neutral-200 bg-white p-12 py-20 text-center">
+            <h3 className="text-2xl font-bold text-neutral-800">
+              No matching products found
+            </h3>
+
+            <p className="mt-2 text-neutral-500">
+              Try adjusting your search query or category filters.
+            </p>
+
+            <button
+              type="button"
+              onClick={() => {
+                setSearch("");
+                setCategory("All");
+              }}
+              className="mt-6 inline-flex items-center rounded-xl bg-green-600 px-6 py-3 text-sm font-semibold text-white transition hover:bg-green-700"
+            >
+              Reset Filters
+            </button>
+          </div>
+        )}
+      </div>
     </section>
   );
 }

@@ -1,31 +1,68 @@
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Poppins:wght@400;500;600;700&display=swap');
 @import "tailwindcss";
 
-/* ===== Design System ===== */
-:root {
-  --primary: #16A34A;
-  --primary-dark: #15803D;
-  --background: #F8FAFC;
-  --white: #FFFFFF;
-  --text: #1F2937;
-  --text-light: #6B7280;
-  --border: #E5E7EB;
+@layer base {
+  html {
+    font-family: 'Plus Jakarta Sans', 'Poppins', system-ui, -apple-system, sans-serif;
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    background-color: #f8fafc;
+    color: #0f172a;
+  }
+
+  body {
+    overflow-x: hidden;
+    min-height: 100vh;
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #f1f5f9;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 9999px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+  }
 }
 
-/* ===== Global Reset ===== */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+/* Glassmorphism Utilities */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.4);
 }
 
-/* ===== Global Styles ===== */
-html,
-body,
-#root {
-  width: 100%;
-  min-height: 100%;
-  font-family: 'Poppins', sans-serif;
-  background-color: var(--background);
-  color: var(--text);
+.glass-card {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(226, 232, 240, 0.8);
+}
+
+/* Marquee Animation */
+@keyframes marquee {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+  100% {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+.animate-marquee {
+  animation: marquee 28s linear infinite;
+  will-change: transform;
+}
+
+.animate-marquee:hover {
+  animation-play-state: paused;
 }

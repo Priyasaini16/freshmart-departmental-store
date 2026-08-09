@@ -1,18 +1,25 @@
 import Navbar from "../components/common/Navbar";
 import Footer from "../components/common/Footer";
-import { Outlet } from "react-router-dom";
+import { Outlet, useLocation } from "react-router-dom";
+import { useEffect } from "react";
 
 function MainLayout() {
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+
   return (
-    <>
+    <div className="flex min-h-screen flex-col bg-[#fafafa] text-neutral-900 antialiased selection:bg-green-100 selection:text-green-800">
       <Navbar />
 
-      <main>
+      <main className="flex-1">
         <Outlet />
       </main>
 
       <Footer />
-    </>
+    </div>
   );
 }
 
