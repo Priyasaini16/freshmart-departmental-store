@@ -4,7 +4,7 @@ import "./index.css";
 import App from "./App.jsx";
 import CartProvider from "./context/CartContext";
 import { WishlistProvider } from "./context/WishlistContext";
-import { ToastProvider } from "./context/ToastContext";
+import { ToastProvider } from "./context/toastContext";
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
