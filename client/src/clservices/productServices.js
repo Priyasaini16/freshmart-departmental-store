@@ -1,4 +1,4 @@
-const API_URL = "https://freshmart-departmental-store.onrender.com";
+const API_URL = "https://freshmart-departmental-store.onrender.com/api/products";
 
 export const getProducts = async () => {
   const response = await fetch(API_URL);
