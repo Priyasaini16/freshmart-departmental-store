@@ -9,7 +9,7 @@ import Register from "./pages/Register";
 import ProductDetails from "./pages/ProductDetails";
 import Checkout from "./pages/checkout";
 import OrderSuccess from "./pages/OrderSuccess";
-import Wishlist from "./pages/Wishlist";
+import Wishlist from "./pages/wishlist";
 import NotFound from "./pages/NotFound";
 
 function App() {
