@@ -4,8 +4,8 @@ import { Search, SlidersHorizontal } from "lucide-react";
 
 import { CartContext } from "../context/CartContext";
 import ProductCard from "../components/product/ProductCard";
-import ProductSkeleton from "../components/product/ProductSkeleton";
-import { getProducts } from "../clServices/productServices";
+import ProductSkeleton from "../components/product/productSkeleton";
+import { getProducts } from "../clservices/productServices";
 
 const categories = [
   "All",

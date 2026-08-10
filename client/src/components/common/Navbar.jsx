@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { CartContext } from "../../context/CartContext";
 import { motion, AnimatePresence } from "framer-motion";
 import { Search, Heart, ShoppingBag, User, Menu, X, MapPin, Leaf } from "lucide-react";
-import { useWishlist } from "../../context/WishlistContext";
+import { useWishlist } from "../../context/wishlistContext";
 import { products } from "../../data/products";
 
 const NAV_LINKS = [

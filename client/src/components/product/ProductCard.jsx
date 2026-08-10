@@ -1,8 +1,8 @@
 import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { Heart, Star, Plus, Check } from "lucide-react";
-import { useWishlist } from "../../context/WishlistContext";
-import { useToast } from "../../context/ToastContext";
+import { useWishlist } from "../../context/wishlistContext";
+import { useToast } from "../../context/toastContext";
 
 function ProductCard({ product, onAddToCart }) {
   const [added, setAdded] = useState(false);

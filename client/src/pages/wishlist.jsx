@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { Heart, ShoppingCart, Trash2 } from "lucide-react";
 import { useWishlist } from "../context/wishlistContext";
 import { useCart } from "../context/CartContext";
-import { useToast } from "../context/ToastContext";
+import { useToast } from "../context/toastContext";
 
 function Wishlist() {
   const {

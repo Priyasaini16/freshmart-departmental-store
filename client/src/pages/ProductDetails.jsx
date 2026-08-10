@@ -11,7 +11,7 @@ import {
   ArrowLeft,
 } from "lucide-react";
 import ProductCard from "../components/product/ProductCard";
-import { useToast } from "../context/ToastContext";
+import { useToast } from "../context/toastContext";
 
 function ProductDetails() {
   const { id } = useParams();
