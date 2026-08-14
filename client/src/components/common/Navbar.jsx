@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Search, Heart, ShoppingBag, User, Menu, X, MapPin, Leaf } from "lucide-react";
 import { useWishlist } from "../../context/wishlistContext";
 import { products } from "../../data/products";
+import { useAuth } from "../../context/authContext";
 
 const NAV_LINKS = [
   { label: "Categories", href: "/#categories" },
@@ -17,6 +18,7 @@ function Navbar() {
   const { cartItems } = useContext(CartContext);
   const navigate = useNavigate();
   const { wishlistCount } = useWishlist();
+  const { user, isAuthenticated, logout } = useAuth();
 
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -173,13 +175,36 @@ function Navbar() {
             )}
           </Link>
 
+          {isAuthenticated ? (
+            <div className="hidden sm:flex items-center gap-2">
+              <div className="flex items-center gap-2 rounded-xl bg-green-50 px-3 py-2">
+                <User className="w-4 h-4 text-green-600" />
+
+                <span className="max-w-[120px] truncate text-sm font-semibold text-green-700">
+                  {user?.name || "User"}
+                </span>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => {
+                logout();
+                navigate("/");
+              }}
+              className="rounded-xl bg-neutral-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-neutral-800"
+            >
+              Logout
+            </button>
+          </div>
+        ) : (
           <Link
             to="/login"
             className="hidden sm:flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-xl hover:bg-green-700 transition text-sm font-semibold"
           >
-            <User className="w-4 h-4" />
-            Account
+           <User className="w-4 h-4" />
+           Account
           </Link>
+        )}
 
           {/* Mobile toggle */}
           <button
@@ -226,13 +251,35 @@ function Navbar() {
                   {l.label}
                 </a>
               ))}
-              <Link
-                to="/login"
-                onClick={() => setMobileOpen(false)}
-                className="mt-2 flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-neutral-900 text-sm font-semibold text-white"
-              >
-                <User className="h-[18px] w-[18px]" /> Sign in
-              </Link>
+              {isAuthenticated ? (
+                <div className="mt-2 space-y-2">
+                 <div className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-green-50 text-sm font-semibold text-green-700">
+                  <User className="h-[18px] w-[18px]" />
+                  {user?.name || "User"}
+                 </div>
+
+                 <button
+                  type="button"
+                  onClick={() => {
+                    logout();
+                    setMobileOpen(false);
+                    navigate("/");
+                  }}
+                  className="flex h-12 w-full items-center justify-center rounded-xl bg-neutral-900 text-sm font-semibold text-white"
+                >
+                  Logout
+                 </button>
+                </div>
+              ) : (
+                <Link
+                  to="/login"
+                  onClick={() => setMobileOpen(false)}
+                  className="mt-2 flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-neutral-900 text-sm font-semibold text-white"
+                >
+                  <User className="h-[18px] w-[18px]" />
+                  Sign in
+                </Link>
+              )}
             </div>
           </motion.div>
         )}

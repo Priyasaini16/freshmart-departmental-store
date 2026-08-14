@@ -10,6 +10,7 @@ import ProductDetails from "./pages/ProductDetails";
 import Checkout from "./pages/checkout";
 import OrderSuccess from "./pages/OrderSuccess";
 import Wishlist from "./pages/wishlist";
+import ProtectedRoute from "./components/ProtectedRoute";
 import NotFound from "./pages/NotFound";
 
 function App() {
@@ -23,7 +24,7 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/product/:id" element={<ProductDetails />} />
-          <Route path="/checkout" element={<Checkout />} />
+          <Route path="/checkout" element={<ProtectedRoute> <Checkout /> </ProtectedRoute>} />
           <Route path="/order-success" element={<OrderSuccess />} />
           <Route path="/wishlist" element={<Wishlist />} />
         </Route>

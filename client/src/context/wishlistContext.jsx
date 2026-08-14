@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useEffect, useCallback, useMemo } from "react";
 
-const WishlistContext = createContext();
+const wishlistContext = createContext();
 
 export function WishlistProvider({ children }) {
   const [wishlistItems, setWishlistItems] = useState(() => {
@@ -63,14 +63,14 @@ export function WishlistProvider({ children }) {
   );
 
   return (
-    <WishlistContext.Provider value={value}>
+    <wishlistContext.Provider value={value}>
       {children}
-    </WishlistContext.Provider>
+    </wishlistContext.Provider>
   );
 }
 
 export function useWishlist() {
-  const context = useContext(WishlistContext);
+  const context = useContext(wishlistContext);
   if (!context) {
     throw new Error("useWishlist must be used within a WishlistProvider");
   }
