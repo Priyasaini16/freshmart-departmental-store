@@ -1,11 +1,27 @@
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { CartContext } from "../context/CartContext";
 import { ArrowLeft, ShieldCheck, CreditCard, Banknote, Smartphone } from "lucide-react";
+import { useAuth } from "../context/authContext";
 
 function Checkout() {
   const { cartItems, clearCart } = useContext(CartContext);
   const navigate = useNavigate();
+  const { user } = useAuth();
+
+const [formData, setFormData] = useState({
+  fullName: user?.name || "",
+  phone: "",
+  email: user?.email || "",
+  houseNo: "",
+  street: "",
+  city: "",
+  state: "",
+  pincode: "",
+  paymentMethod: "COD",
+});
+
+const [loading, setLoading] = useState(false);
 
   const subtotal = cartItems.reduce(
     (total, item) => total + item.price * (item.quantity || 1),
@@ -16,15 +32,92 @@ function Checkout() {
   const discount = subtotal >= 1000 ? subtotal * 0.1 : 0;
   const total = subtotal + delivery - discount;
 
-  function handlePlaceOrder(e) {
-    e.preventDefault();
-    if (cartItems.length === 0) {
-      alert("Your cart is empty!");
+  function handleChange(e) {
+  const { name, value } = e.target;
+
+  setFormData((prev) => ({
+    ...prev,
+    [name]: value,
+  }));
+}
+  async function handlePlaceOrder(e) {
+  e.preventDefault();
+
+  if (cartItems.length === 0) {
+    alert("Your cart is empty!");
+    return;
+  }
+
+  if (!user) {
+    alert("Please login before placing an order.");
+    navigate("/login");
+    return;
+  }
+
+  try {
+    setLoading(true);
+
+    const token = localStorage.getItem("freshmart_token");
+
+    if (!token) {
+      alert("Your login session has expired. Please login again.");
+      navigate("/login");
       return;
     }
+
+    const orderItems = cartItems.map((item) => ({
+      product: item.id,
+      name: item.name,
+      image: item.image,
+      price: item.price,
+      quantity: item.quantity || 1,
+    }));
+
+    const shippingAddress = {
+      fullName: formData.fullName,
+      phone: formData.phone,
+      address: `${formData.houseNo}, ${formData.street}`,
+      city: formData.city,
+      state: formData.state,
+      pincode: formData.pincode,
+    };
+
+    const response = await fetch(
+      "https://freshmart-departmental-store.onrender.com/api/orders",
+      {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        items: orderItems,
+        shippingAddress,
+        paymentMethod: formData.paymentMethod,
+        totalAmount: total,
+      }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.message || "Failed to place order");
+    }
+
     clearCart();
-    navigate("/order-success");
+
+    navigate("/order-success", {
+      state: {
+        order: data.order,
+      },
+    });
+  } catch (error) {
+    console.error("Place Order Error:", error);
+    alert(error.message || "Something went wrong while placing your order.");
+  } finally {
+    setLoading(false);
   }
+}
 
   return (
     <section className="bg-[#fafafa] py-12 lg:py-16 min-h-screen">
@@ -77,7 +170,10 @@ function Checkout() {
                   <label className="block text-xs font-bold text-neutral-700 mb-1.5">Full Name</label>
                   <input
                     required
-                    placeholder="Abhishek Saini"
+                    name="fullName"
+                    value={formData.fullName}
+                    onChange={handleChange}
+                    placeholder="Priya Saini"
                     className="h-12 w-full rounded-xl border border-neutral-300 bg-neutral-50/50 px-4 text-sm outline-none transition focus:border-green-600 focus:bg-white focus:ring-2 focus:ring-green-600/20"
                   />
                 </div>
@@ -86,9 +182,12 @@ function Checkout() {
                   <label className="block text-xs font-bold text-neutral-700 mb-1.5">Phone Number</label>
                   <input
                     required
-                    type="tel"
-                    placeholder="+91 98765 43210"
-                    className="h-12 w-full rounded-xl border border-neutral-300 bg-neutral-50/50 px-4 text-sm outline-none transition focus:border-green-600 focus:bg-white focus:ring-2 focus:ring-green-600/20"
+                     name="phone"
+                     value={formData.phone}
+                     onChange={handleChange}
+                     type="tel"
+                     placeholder="+91 98765 43210"
+                     className="h-12 w-full rounded-xl border border-neutral-300 bg-neutral-50/50 px-4 text-sm outline-none transition focus:border-green-600 focus:bg-white focus:ring-2 focus:ring-green-600/20"
                   />
                 </div>
 
@@ -96,8 +195,11 @@ function Checkout() {
                   <label className="block text-xs font-bold text-neutral-700 mb-1.5">Email Address</label>
                   <input
                     required
+                    name="email"
+                    value={formData.email}
+                    onChange={handleChange}
                     type="email"
-                    placeholder="abhishek@example.com"
+                    placeholder="Testuser@example.com"
                     className="h-12 w-full rounded-xl border border-neutral-300 bg-neutral-50/50 px-4 text-sm outline-none transition focus:border-green-600 focus:bg-white focus:ring-2 focus:ring-green-600/20"
                   />
                 </div>
@@ -121,6 +223,9 @@ function Checkout() {
                   <label className="block text-xs font-bold text-neutral-700 mb-1.5">Flat / House No.</label>
                   <input
                     required
+                    name="houseNo"
+                    value={formData.houseNo}
+                    onChange={handleChange}
                     placeholder="House 42, Floor 2"
                     className="h-12 w-full rounded-xl border border-neutral-300 bg-neutral-50/50 px-4 text-sm outline-none transition focus:border-green-600 focus:bg-white focus:ring-2 focus:ring-green-600/20"
                   />
@@ -130,6 +235,9 @@ function Checkout() {
                   <label className="block text-xs font-bold text-neutral-700 mb-1.5">Street / Area</label>
                   <input
                     required
+                    name="street"
+                    value={formData.street}
+                    onChange={handleChange}
                     placeholder="Sector 17"
                     className="h-12 w-full rounded-xl border border-neutral-300 bg-neutral-50/50 px-4 text-sm outline-none transition focus:border-green-600 focus:bg-white focus:ring-2 focus:ring-green-600/20"
                   />
@@ -139,6 +247,9 @@ function Checkout() {
                   <label className="block text-xs font-bold text-neutral-700 mb-1.5">City</label>
                   <input
                     required
+                    name="city"
+                    value={formData.city}
+                    onChange={handleChange}
                     placeholder="Chandigarh"
                     className="h-12 w-full rounded-xl border border-neutral-300 bg-neutral-50/50 px-4 text-sm outline-none transition focus:border-green-600 focus:bg-white focus:ring-2 focus:ring-green-600/20"
                   />
@@ -148,6 +259,9 @@ function Checkout() {
                   <label className="block text-xs font-bold text-neutral-700 mb-1.5">State</label>
                   <input
                     required
+                    name="state"
+                    value={formData.state}
+                    onChange={handleChange}
                     placeholder="Punjab"
                     className="h-12 w-full rounded-xl border border-neutral-300 bg-neutral-50/50 px-4 text-sm outline-none transition focus:border-green-600 focus:bg-white focus:ring-2 focus:ring-green-600/20"
                   />
@@ -157,6 +271,9 @@ function Checkout() {
                   <label className="block text-xs font-bold text-neutral-700 mb-1.5">Pincode</label>
                   <input
                     required
+                    name="pincode"
+                    value={formData.pincode}
+                    onChange={handleChange}
                     placeholder="160017"
                     className="h-12 w-full rounded-xl border border-neutral-300 bg-neutral-50/50 px-4 text-sm outline-none transition focus:border-green-600 focus:bg-white focus:ring-2 focus:ring-green-600/20"
                   />
@@ -179,7 +296,19 @@ function Checkout() {
 
                 <label className="flex items-center justify-between border rounded-2xl p-4 cursor-pointer hover:border-green-500 transition bg-neutral-50/30">
                   <div className="flex items-center gap-3">
-                    <input type="radio" name="payment" defaultChecked className="accent-green-600 h-4 w-4" />
+                    <input
+                      type="radio"
+                      name="payment"
+                      value="COD"
+                      checked={formData.paymentMethod === "COD"}
+                      onChange={() =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          paymentMethod: "COD",
+                        }))
+                      }
+                      className="accent-green-600 h-4 w-4"
+                    />
                     <span className="text-sm font-semibold text-neutral-900">Cash on Delivery</span>
                   </div>
                   <Banknote className="h-5 w-5 text-green-600" />
@@ -187,7 +316,19 @@ function Checkout() {
 
                 <label className="flex items-center justify-between border rounded-2xl p-4 cursor-pointer hover:border-green-500 transition bg-neutral-50/30">
                   <div className="flex items-center gap-3">
-                    <input type="radio" name="payment" className="accent-green-600 h-4 w-4" />
+                    <input
+                      type="radio"
+                      name="payment"
+                      value="ONLINE"
+                      checked={formData.paymentMethod === "ONLINE"}
+                      onChange={() =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          paymentMethod: "ONLINE",
+                        }))
+                      }
+                      className="accent-green-600 h-4 w-4"
+                    />
                     <span className="text-sm font-semibold text-neutral-900">UPI (GPay / PhonePe / Paytm)</span>
                   </div>
                   <Smartphone className="h-5 w-5 text-green-600" />
@@ -195,7 +336,19 @@ function Checkout() {
 
                 <label className="flex items-center justify-between border rounded-2xl p-4 cursor-pointer hover:border-green-500 transition bg-neutral-50/30">
                   <div className="flex items-center gap-3">
-                    <input type="radio" name="payment" className="accent-green-600 h-4 w-4" />
+                    <input
+                      type="radio"
+                      name="payment"
+                      value="ONLINE"
+                      checked={formData.paymentMethod === "ONLINE"}
+                      onChange={() =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          paymentMethod: "ONLINE",
+                        }))
+                      }
+                      className="accent-green-600 h-4 w-4"
+                    />
                     <span className="text-sm font-semibold text-neutral-900">Credit / Debit Card</span>
                   </div>
                   <CreditCard className="h-5 w-5 text-green-600" />
@@ -275,9 +428,10 @@ function Checkout() {
 
               <button
                 type="submit"
-                className="mt-6 w-full rounded-2xl bg-green-600 py-4 text-base font-bold text-white hover:bg-green-700 transition shadow-lg shadow-green-600/25 cursor-pointer"
+                disabled={loading}
+                className="mt-6 w-full rounded-2xl bg-green-600 py-4 text-base font-bold text-white hover:bg-green-700 transition shadow-lg shadow-green-600/25 cursor-pointer disabled:cursor-not-allowed disabled:opacity-60"
               >
-                Place Order Now
+                {loading ? "Placing Order..." : "Place Order Now"}
               </button>
 
               <div className="mt-4 flex items-center justify-center gap-2 text-xs font-semibold text-neutral-500">

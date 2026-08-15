@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Leaf, ArrowRight, Lock, Mail, Eye, EyeOff } from "lucide-react";
 import { useAuth } from "../context/authContext";
 
@@ -15,6 +15,7 @@ function Login() {
   const { login } = useAuth();
 
   const navigate = useNavigate();
+  const location = useLocation();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -50,7 +51,8 @@ function Login() {
 
       alert("Logged in successfully!");
 
-      navigate("/");
+      const from = location.state?.from || "/";
+      navigate(from);
     } catch (error) {
       setError(error.message);
     } finally {
