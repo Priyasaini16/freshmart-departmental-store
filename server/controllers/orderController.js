@@ -1,4 +1,6 @@
 import Order from "../models/Order.js";
+import Product from "../models/Product.js";
+
 // @desc    Create a new order
 // @route   POST /api/orders
 // @access  Private
@@ -23,9 +25,32 @@ export const createOrder = async (req, res) => {
       });
     }
 
+    // Convert frontend product IDs into MongoDB ObjectIds
+    const processedItems = [];
+
+    for (const item of items) {
+      const product = await Product.findOne({
+        name: item.name,
+      });
+
+      if (!product) {
+        return res.status(404).json({
+          message: `Product not found: ${item.name}`,
+        });
+      }
+
+      processedItems.push({
+        product: product._id,
+        name: product.name,
+        image: product.image,
+        price: product.price,
+        quantity: item.quantity || 1,
+      });
+    }
+
     const order = await Order.create({
       user: req.user.id,
-      items,
+      items: processedItems,
       shippingAddress,
       paymentMethod: paymentMethod || "COD",
       totalAmount,
