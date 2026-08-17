@@ -130,3 +130,77 @@ export const getOrderById = async (req, res) => {
     });
   }
 };
+// @desc    Get all orders
+// @route   GET /api/orders/admin/all
+// @access  Admin
+export const getAllOrders = async (req, res) => {
+  try {
+    const orders = await Order.find()
+      .populate("user", "name email")
+      .populate("items.product", "name image price")
+      .sort({ createdAt: -1 });
+
+    res.status(200).json({
+      orders,
+    });
+  } catch (error) {
+    console.error("Get All Orders Error:", error);
+
+    res.status(500).json({
+      message: "Failed to fetch all orders",
+      error: error.message,
+    });
+  }
+};
+// @desc    Update order status
+// @route   PATCH /api/orders/admin/:id/status
+// @access  Admin
+export const updateOrderStatus = async (req, res) => {
+  try {
+    const { status } = req.body;
+
+    const allowedStatuses = [
+      "Placed",
+      "Confirmed",
+      "Preparing",
+      "Out for Delivery",
+      "Delivered",
+      "Cancelled",
+    ];
+
+    if (!allowedStatuses.includes(status)) {
+      return res.status(400).json({
+        message: "Invalid order status",
+      });
+    }
+
+    const order = await Order.findById(req.params.id);
+
+    if (!order) {
+      return res.status(404).json({
+        message: "Order not found",
+      });
+    }
+
+    order.orderStatus = status;
+
+    // Automatically update payment status when delivered
+    if (status === "Delivered" && order.paymentMethod === "COD") {
+      order.paymentStatus = "Paid";
+    }
+
+    await order.save();
+
+    res.status(200).json({
+      message: "Order status updated successfully",
+      order,
+    });
+  } catch (error) {
+    console.error("Update Order Status Error:", error);
+
+    res.status(500).json({
+      message: "Failed to update order status",
+      error: error.message,
+    });
+  }
+};
