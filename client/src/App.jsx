@@ -12,6 +12,12 @@ import OrderSuccess from "./pages/OrderSuccess";
 import Wishlist from "./pages/wishlist";
 import ProtectedRoute from "./components/ProtectedRoute";
 import NotFound from "./pages/NotFound";
+import Orders from "./pages/Orders";
+import OrderDetails from "./pages/OrderDetails";
+
+import AdminDashboard from "./pages/AdminDashboard";
+import AdminRoute from "./components/AdminRoute";
+import AdminProducts from "./pages/AdminProducts";
 
 function App() {
   return (
@@ -26,8 +32,27 @@ function App() {
           <Route path="/product/:id" element={<ProductDetails />} />
           <Route path="/checkout" element={<ProtectedRoute> <Checkout /> </ProtectedRoute>} />
           <Route path="/order-success" element={<OrderSuccess />} />
+          <Route path="/orders" element={<Orders />} />
+          <Route path="/orders/:id" element={<OrderDetails />} />
           <Route path="/wishlist" element={<Wishlist />} />
         </Route>
+
+        <Route
+          path="/admin"
+          element={
+            <AdminRoute>
+              <AdminDashboard />
+            </AdminRoute>
+          }
+        />
+        <Route
+          path="/admin/products"
+          element={
+            <AdminRoute>
+              <AdminProducts />
+            </AdminRoute>
+          }
+        />
 
         <Route path="*" element={<NotFound />} />
       </Routes>

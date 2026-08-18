@@ -63,7 +63,7 @@ function Navbar() {
           : "border-b border-transparent bg-white/40 backdrop-blur-md"
       }`}
     >
-      <nav className="mx-auto flex h-[76px] max-w-7xl items-center gap-4 px-6 lg:gap-8 lg:px-8">
+      <nav className="mx-auto flex h-[76px] max-w-7xl items-center gap-3 px-6 lg:gap-5 lg:px-8">
         {/* Logo */}
         <Link
           to="/"
@@ -134,7 +134,7 @@ function Navbar() {
         </form>
 
         {/* Desktop links */}
-        <div className="ml-auto hidden items-center gap-7 lg:flex">
+        <div className="ml-auto hidden items-center gap-5 lg:flex">
           {NAV_LINKS.map((l) => (
             <a
               key={l.label}
@@ -147,7 +147,7 @@ function Navbar() {
         </div>
 
         {/* Actions */}
-        <div className="ml-auto flex items-center gap-1.5 lg:ml-0">
+        <div className="ml-auto flex items-center gap-1 lg:ml-0">
           <Link
             to="/wishlist"
             aria-label="Wishlist"
@@ -177,13 +177,23 @@ function Navbar() {
 
           {isAuthenticated ? (
             <div className="hidden sm:flex items-center gap-2">
-              <div className="flex items-center gap-2 rounded-xl bg-green-50 px-3 py-2">
-                <User className="w-4 h-4 text-green-600" />
 
-                <span className="max-w-[120px] truncate text-sm font-semibold text-green-700">
-                  {user?.name || "User"}
-                </span>
-              </div>
+              {user?.role === "admin" && (
+                <Link
+                  to="/admin"
+                  className="hidden sm:flex items-center rounded-xl px-2 py-2 text-sm font-semibold text-green-700 transition hover:bg-green-50"
+                >
+                  Admin Dashboard
+                </Link>
+              )}
+
+              <Link
+                to="/orders"
+                className="hidden sm:flex items-center gap-2 rounded-xl px-2 py-2 text-sm font-semibold text-neutral-700 transition hover:bg-neutral-100 hover:text-green-600"
+              >
+                My Orders
+              </Link>
+
 
               <button
                 type="button"
@@ -230,8 +240,14 @@ function Navbar() {
             className="overflow-hidden border-t border-neutral-100 bg-white lg:hidden"
           >
             <div className="space-y-1 px-6 py-5">
-              <form onSubmit={handleSearchSubmit} className="relative mb-4 md:hidden">
+
+              {/* Mobile Search */}
+              <form
+                onSubmit={handleSearchSubmit}
+                className="relative mb-4 md:hidden"
+              >
                 <Search className="pointer-events-none absolute left-4 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-neutral-400" />
+
                 <input
                   type="search"
                   value={searchQuery}
@@ -241,6 +257,8 @@ function Navbar() {
                   className="h-11 w-full rounded-xl border border-neutral-200 bg-neutral-50 pl-11 pr-4 text-sm focus:border-green-600 focus:outline-none"
                 />
               </form>
+
+              {/* Mobile Navigation Links */}
               {NAV_LINKS.map((l) => (
                 <a
                   key={l.label}
@@ -251,26 +269,53 @@ function Navbar() {
                   {l.label}
                 </a>
               ))}
-              {isAuthenticated ? (
-                <div className="mt-2 space-y-2">
-                 <div className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-green-50 text-sm font-semibold text-green-700">
-                  <User className="h-[18px] w-[18px]" />
-                  {user?.name || "User"}
-                 </div>
 
-                 <button
-                  type="button"
-                  onClick={() => {
-                    logout();
-                    setMobileOpen(false);
-                    navigate("/");
-                  }}
-                  className="flex h-12 w-full items-center justify-center rounded-xl bg-neutral-900 text-sm font-semibold text-white"
-                >
-                  Logout
-                 </button>
-                </div>
+              {/* Account Section */}
+              {isAuthenticated ? (
+                <>
+                  {/* Admin Dashboard */}
+                  {user?.role === "admin" && (
+                    <Link
+                      to="/admin"
+                      onClick={() => setMobileOpen(false)}
+                      className="mt-2 flex h-12 w-full items-center justify-center rounded-xl bg-green-50 text-sm font-semibold text-green-700 transition hover:bg-green-100"
+                    >
+                      Admin Dashboard
+                    </Link>
+                  )}
+                  {/* My Orders */}
+                  <Link
+                    to="/orders"
+                    onClick={() => setMobileOpen(false)}
+                    className="mt-2 flex h-12 w-full items-center justify-center rounded-xl bg-green-50 text-sm font-semibold text-green-700 transition hover:bg-green-100"
+                  >
+                    My Orders
+                  </Link>
+
+                  {/* User + Logout */}
+                  <div className="mt-2 space-y-2">
+
+                    <div className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-green-50 text-sm font-semibold text-green-700">
+                      <User className="h-[18px] w-[18px]" />
+                      {user?.name || "User"}
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        logout();
+                        setMobileOpen(false);
+                        navigate("/");
+                      }}
+                      className="flex h-12 w-full items-center justify-center rounded-xl bg-neutral-900 text-sm font-semibold text-white transition hover:bg-neutral-800"
+                    >
+                      Logout
+                    </button>
+
+                  </div>
+                </>
               ) : (
+                /* Sign In */
                 <Link
                   to="/login"
                   onClick={() => setMobileOpen(false)}
@@ -280,6 +325,7 @@ function Navbar() {
                   Sign in
                 </Link>
               )}
+
             </div>
           </motion.div>
         )}
