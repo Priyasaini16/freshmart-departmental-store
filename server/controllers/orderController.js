@@ -10,7 +10,6 @@ export const createOrder = async (req, res) => {
       items,
       shippingAddress,
       paymentMethod,
-      totalAmount,
     } = req.body;
 
     if (!items || items.length === 0) {
@@ -25,7 +24,7 @@ export const createOrder = async (req, res) => {
       });
     }
 
-    // Convert frontend product IDs into MongoDB ObjectIds
+    // Convert frontend product data into trusted database product data
     const processedItems = [];
 
     for (const item of items) {
@@ -48,11 +47,31 @@ export const createOrder = async (req, res) => {
       });
     }
 
+    // Calculate subtotal from actual database prices
+    const subtotal = processedItems.reduce(
+      (sum, item) => sum + item.price * item.quantity,
+      0
+    );
+
+    // Delivery:
+    // Below ₹500 = ₹40
+    // ₹500 or above = FREE
+    const deliveryCharge = subtotal >= 500 ? 0 : 40;
+
+    // 10% discount on orders of ₹1000 or more
+    const discount = subtotal >= 1000 ? subtotal * 0.1 : 0;
+
+    // Final amount
+    const totalAmount = subtotal + deliveryCharge - discount;
+
     const order = await Order.create({
       user: req.user.id,
       items: processedItems,
       shippingAddress,
       paymentMethod: paymentMethod || "COD",
+      subtotal,
+      deliveryCharge,
+      discount,
       totalAmount,
     });
 
@@ -69,7 +88,6 @@ export const createOrder = async (req, res) => {
     });
   }
 };
-
 
 // @desc    Get logged-in user's orders
 // @route   GET /api/orders/my-orders

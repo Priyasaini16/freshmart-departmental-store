@@ -28,7 +28,7 @@ const [loading, setLoading] = useState(false);
     0
   );
 
-  const delivery = subtotal >= 500 || subtotal === 0 ? 0 : 40;
+  const delivery = subtotal >= 500 ? 0 : 40;
   const discount = subtotal >= 1000 ? subtotal * 0.1 : 0;
   const total = subtotal + delivery - discount;
 
@@ -82,6 +82,13 @@ const [loading, setLoading] = useState(false);
       pincode: formData.pincode,
     };
 
+    console.log("ORDER CALCULATION:", {
+      subtotal,
+      delivery,
+      discount,
+      total,
+    });
+
     const response = await fetch(
       "https://freshmart-departmental-store.onrender.com/api/orders",
       {
@@ -94,7 +101,6 @@ const [loading, setLoading] = useState(false);
         items: orderItems,
         shippingAddress,
         paymentMethod: formData.paymentMethod,
-        totalAmount: total,
       }),
     });
 

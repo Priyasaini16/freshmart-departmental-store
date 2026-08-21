@@ -96,9 +96,27 @@ const orderSchema = new mongoose.Schema(
       default: "Placed",
     },
 
+    subtotal: {
+     type: Number,
+     required: true,
+     default: 0,
+    },
+
+    deliveryCharge: {
+     type: Number,
+     required: true,
+     default: 0,
+    },
+
+    discount: {
+     type: Number,
+     required: true,
+     default: 0,
+    },
+
     totalAmount: {
-      type: Number,
-      required: true,
+     type: Number,
+     required: true,
     },
   },
   {

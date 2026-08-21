@@ -250,7 +250,7 @@ function OrderDetails() {
             );
         })()}
         </div>
-        
+
         {/* Order Items */}
         <div className="mt-6 rounded-3xl border border-neutral-200 bg-white shadow-sm">
           <div className="border-b border-neutral-100 p-6">
@@ -292,19 +292,69 @@ function OrderDetails() {
             ))}
           </div>
 
-          {/* Total */}
-          <div className="border-t border-neutral-100 bg-neutral-50/60 p-6">
-            <div className="flex items-center justify-between">
-              <span className="text-lg font-semibold text-neutral-700">
-                Total Amount
-              </span>
+          {/* Price Breakdown */}
+            <div className="border-t border-neutral-100 bg-neutral-50/60 p-6">
+            <div className="space-y-3">
 
-              <span className="text-2xl font-bold text-green-600">
-                ₹{order.totalAmount.toFixed(2)}
-              </span>
+                <div className="flex items-center justify-between text-sm">
+                <span className="text-neutral-600">
+                    Subtotal
+                </span>
+
+                <span className="font-semibold text-neutral-900">
+                    ₹
+                    {Number(
+                    order.subtotal ??
+                    order.items.reduce(
+                        (sum, item) => sum + item.price * item.quantity,
+                        0
+                    )
+                    ).toFixed(2)}
+                </span>
+                </div>
+
+                <div className="flex items-center justify-between text-sm">
+                <span className="text-neutral-600">
+                    Delivery Charges
+                </span>
+
+                <span className="font-semibold text-neutral-900">
+                    {Number(order.deliveryCharge ?? 40) === 0 ? (
+                    <span className="font-bold text-green-600">
+                        FREE
+                    </span>
+                    ) : (
+                    `₹${Number(order.deliveryCharge ?? 40).toFixed(2)}`
+                    )}
+                </span>
+                </div>
+
+                {Number(order.discount ?? 0) > 0 && (
+                <div className="flex items-center justify-between text-sm">
+                    <span className="text-green-600">
+                    Discount
+                    </span>
+
+                    <span className="font-semibold text-green-600">
+                    -₹{Number(order.discount ?? 0).toFixed(2)}
+                    </span>
+                </div>
+                )}
+
+                <div className="flex items-center justify-between border-t border-neutral-200 pt-4">
+                <span className="text-lg font-semibold text-neutral-700">
+                    Total Amount
+                </span>
+
+                <span className="text-2xl font-bold text-green-600">
+                    ₹{Number(order.totalAmount ?? 0).toFixed(2)}
+                </span>
+                </div>
+
             </div>
+            </div>
+
           </div>
-        </div>
 
         {/* Address + Payment */}
         <div className="mt-6 grid gap-6 md:grid-cols-2">
